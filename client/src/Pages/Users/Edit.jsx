@@ -1,5 +1,12 @@
 import { Close } from "@mui/icons-material";
-import { Autocomplete, IconButton, MenuItem, Modal, Select, TextField } from "@mui/material";
+import {
+  Autocomplete,
+  IconButton,
+  MenuItem,
+  Modal,
+  Select,
+  TextField,
+} from "@mui/material";
 import { useEffect, useState } from "react";
 import React from "react";
 import { updateUser } from "../../redux/action/user";
@@ -14,18 +21,26 @@ import {
   PiRuler,
   PiXLight,
 } from "react-icons/pi";
-import { Divider, Dialog, DialogContent, DialogTitle, Slide, DialogActions } from "@mui/material";
+import {
+  Divider,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Slide,
+  DialogActions,
+} from "@mui/material";
 import { pakistanCities } from "../../constant";
 import { CFormSelect } from "@coreui/react";
+import { errorMessages, errorRegexMessages, regexes } from "./CreateUser";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
 
-const EditModal = ({ open, setOpen }) => {
+const EditModal = ({ open, setOpen, isClient }) => {
   /////////////////////////////////////// VARIABLES ///////////////////////////////////////
   const dispatch = useDispatch();
-  const { currentEmployee, isFetching, error } = useSelector((state) => state.user);
+  const { currentUser, isFetching } = useSelector((state) => state.user);
   const initialEmployeeState = {
     firstName: "",
     lastName: "",
@@ -35,22 +50,52 @@ const EditModal = ({ open, setOpen }) => {
   };
 
   /////////////////////////////////////// STATES ///////////////////////////////////////
-  const [employeeData, setEmployeeData] = useState(currentEmployee);
+  const [userData, setUserData] = useState(currentUser);
+  const [submitTriggered, setSubmitTriggered] = useState(false);
+
   /////////////////////////////////////// USE EFFECT ///////////////////////////////////////
   useEffect(() => {
-    setEmployeeData(currentEmployee);
-  }, [currentEmployee]);
+    setUserData(currentUser);
+  }, [currentUser]);
 
   /////////////////////////////////////// FUNCTIONS ///////////////////////////////////////
+  const fieldError = (field) => {
+    return !userData[field] || !regexes[field].test(userData[field]);
+  };
+
+  const checkError = (field) => {
+    return submitTriggered && fieldError(field);
+  };
+
+  const checkMessage = (field) => {
+    return submitTriggered
+      ? !userData[field]
+        ? errorMessages[field]
+        : !regexes[field].test(userData[field])
+        ? errorRegexMessages[field]
+        : ""
+      : "";
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(updateUser(currentEmployee._id, employeeData, employeeData?.role));
-    setEmployeeData(initialEmployeeState);
+    if (
+      [
+        "firstName",
+        "lastName",
+        "username",
+        ...(isClient ? [] : ["password"]),
+        "phone",
+      ].some((field) => fieldError(field))
+    )
+      return setSubmitTriggered(true);
+    dispatch(updateUser(currentUser._id, userData, userData?.role));
+    setUserData(initialEmployeeState);
     setOpen(false);
   };
 
   const handleInputChange = (field, value) => {
-    setEmployeeData((prevFilters) => ({ ...prevFilters, [field]: value }));
+    setUserData((prevFilters) => ({ ...prevFilters, [field]: value }));
   };
 
   const handleClose = () => {
@@ -66,7 +111,8 @@ const EditModal = ({ open, setOpen }) => {
       onClose={handleClose}
       fullWidth="sm"
       maxWidth="sm"
-      aria-describedby="alert-dialog-slide-description">
+      aria-describedby="alert-dialog-slide-description"
+    >
       <DialogTitle className="flex items-center justify-between">
         <div className="text-sky-400 font-primary">Edit Employee</div>
         <div className="cursor-pointer" onClick={handleClose}>
@@ -87,8 +133,12 @@ const EditModal = ({ open, setOpen }) => {
                 <TextField
                   size="small"
                   fullWidth
-                  value={employeeData?.firstName}
-                  onChange={(e) => handleInputChange("firstName", e.target.value)}
+                  value={userData?.firstName}
+                  error={checkError("firstName")}
+                  helperText={checkMessage("firstName")}
+                  onChange={(e) =>
+                    handleInputChange("firstName", e.target.value)
+                  }
                 />
               </td>
             </tr>
@@ -98,31 +148,41 @@ const EditModal = ({ open, setOpen }) => {
                 <TextField
                   size="small"
                   fullWidth
-                  value={employeeData?.lastName}
-                  onChange={(e) => handleInputChange("lastName", e.target.value)}
+                  value={userData?.lastName}
+                  error={checkError("lastName")}
+                  helperText={checkMessage("lastName")}
+                  onChange={(e) =>
+                    handleInputChange("lastName", e.target.value)
+                  }
                 />
               </td>
             </tr>
             <tr>
-                <td className="pb-4 text-lg">Email </td>
-                <td className="pb-4">
-                  <TextField
-                    size="small"
-                    fullWidth
-                    placeholder="Optional"
-                    value={employeeData?.email}
-                    onChange={(e) => handleChange('email', e.target.value)}
-                  />
-                </td>
-              </tr>
+              <td className="pb-4 text-lg">Email </td>
+              <td className="pb-4">
+                <TextField
+                  size="small"
+                  fullWidth
+                  placeholder="Optional"
+                  value={userData?.email}
+                  error={checkError("email")}
+                  helperText={checkMessage("email")}
+                  onChange={(e) => handleChange("email", e.target.value)}
+                />
+              </td>
+            </tr>
             <tr>
               <td className="pb-4 text-lg">User Name </td>
               <td className="pb-4">
                 <TextField
                   size="small"
                   fullWidth
-                  value={employeeData?.username}
-                  onChange={(e) => handleInputChange("username", e.target.value)}
+                  value={userData?.username}
+                  error={checkError("username")}
+                  helperText={checkMessage("username")}
+                  onChange={(e) =>
+                    handleInputChange("username", e.target.value)
+                  }
                 />
               </td>
             </tr>
@@ -132,7 +192,9 @@ const EditModal = ({ open, setOpen }) => {
                 <TextField
                   type="number"
                   size="small"
-                  value={employeeData?.phone}
+                  value={userData?.phone}
+                  error={checkError("phone")}
+                  helperText={checkMessage("phone")}
                   onChange={(e) => handleInputChange("phone", e.target.value)}
                   fullWidth
                 />
@@ -146,13 +208,15 @@ const EditModal = ({ open, setOpen }) => {
           onClick={handleClose}
           variant="contained"
           type="reset"
-          className="bg-[#d7d7d7] px-4 py-2 rounded-lg text-gray-500 mt-4 hover:text-white hover:bg-[#6c757d] border-[2px] border-[#efeeee] hover:border-[#d7d7d7] font-thin transition-all">
+          className="bg-[#d7d7d7] px-4 py-2 rounded-lg text-gray-500 mt-4 hover:text-white hover:bg-[#6c757d] border-[2px] border-[#efeeee] hover:border-[#d7d7d7] font-thin transition-all"
+        >
           Cancel
         </button>
         <button
           onClick={handleSubmit}
           variant="contained"
-          className="bg-primary-red px-4 py-2 rounded-lg text-white mt-4 hover:bg-red-400 font-thin">
+          className="bg-primary-red px-4 py-2 rounded-lg text-white mt-4 hover:bg-red-400 font-thin"
+        >
           {isFetching ? "Submitting..." : "Submit"}
         </button>
       </DialogActions>

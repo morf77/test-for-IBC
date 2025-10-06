@@ -9,7 +9,7 @@ export { default as Tasks } from "./Tasks/Tasks";
 export { default as CreateTask } from "./Tasks/CreateTask";
 export { default as Clients } from "./Users/Clients";
 export { default as Employees } from "./Users/Employees";
-export { default as CreateUser } from "./Users/CreateEmployee";
+export { default as CreateUser } from "./Users/CreateUser";
 export { default as User } from "./Users/User";
 export { default as Vouchers } from "./Vouchers/Vouchers";
 export { default as Login } from "./Auth/Login";
@@ -25,7 +25,7 @@ export { default as AllFollowUps } from "./Leads/AllFollowUps/AllFollowUps";
 export { default as ForgotPassword } from "./Auth/ForgotPassword";
 export { default as InputCode } from "./Auth/InputCode";
 export { default as ResetPassword } from "./Auth/ResetPassword";
-export { default as Transcript } from './Transcript/Transcript'
-export { default as Inventories } from './Inventory/Inventories/Inventory'
-export { default as Societies } from './Inventory/Societies/Societies'
-export { default as Projects } from './Inventory/Projects/Projects'
+export { default as Transcript } from "./Transcript/Transcript";
+export { default as Inventories } from "./Inventory/Inventories/Inventory";
+export { default as Societies } from "./Inventory/Societies/Societies";
+export { default as Projects } from "./Inventory/Projects/Projects";

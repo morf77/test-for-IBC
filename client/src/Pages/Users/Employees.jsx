@@ -1,24 +1,22 @@
+import { Tooltip } from "@mui/material";
 import React, { memo, useEffect, useState } from "react";
-import Topbar from "./Topbar";
-import { Table } from "../../Components";
+import { CiEdit } from "react-icons/ci";
+import { PiTrashLight } from "react-icons/pi";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Table } from "../../Components";
 import { getEmployees } from "../../redux/action/user";
+import { getEmployeesReducer, getUserReducer } from "../../redux/reducer/user";
 import DeleteEmployee from "./Delete";
 import EditEmployee from "./Edit";
-import { getEmployeesReducer, getUserReducer } from "../../redux/reducer/user";
-import { IconButton, Tooltip } from "@mui/material";
-import { DeleteOutline, EditOutlined } from "@mui/icons-material";
-import { PiTrashLight } from "react-icons/pi";
-import { IoOpenOutline } from "react-icons/io5";
-import { CiEdit } from "react-icons/ci";
-import Filter from "./Filter";
+import Topbar from "./Topbar";
 import User from "./User";
 
 const Employees = memo(() => {
   /////////////////////////////////////// VARIABLES ////////////////////////////////////////
   const dispatch = useDispatch();
-  const { employees, allEmployees, isFetching, error } = useSelector((state) => state.user);
+  const { employees, allEmployees, isFetching, error } = useSelector(
+    (state) => state.user
+  );
   const columns = [
     {
       field: "uid",
@@ -48,9 +46,7 @@ const Employees = memo(() => {
       headerClassName: "super-app-theme--header",
       width: 200,
       renderCell: (params) => (
-        <div className="font-primary capitalize">
-          {params.row.username}
-        </div>
+        <div className="font-primary capitalize">{params.row.username}</div>
       ),
     },
 
@@ -60,7 +56,9 @@ const Employees = memo(() => {
       headerClassName: "super-app-theme--header",
       width: 200,
       renderCell: (params) => (
-        <div className="text-[#20aee3] font-primary font-light">{params.row.email}</div>
+        <div className="text-[#20aee3] font-primary font-light">
+          {params.row.email}
+        </div>
       ),
     },
     {
@@ -68,7 +66,9 @@ const Employees = memo(() => {
       headerName: "Phone",
       headerClassName: "super-app-theme--header",
       width: 200,
-      renderCell: (params) => <div className="font-primary">{params.row.phone}</div>,
+      renderCell: (params) => (
+        <div className="font-primary">{params.row.phone}</div>
+      ),
     },
     {
       field: "action",
@@ -133,7 +133,11 @@ const Employees = memo(() => {
   return (
     <div className="w-full">
       <EditEmployee open={openEditModal} setOpen={setOpenEditModal} />
-      <DeleteEmployee open={openDeleteModal} setOpen={setOpenDeleteModal} userId={selectedUserId} />
+      <DeleteEmployee
+        open={openDeleteModal}
+        setOpen={setOpenDeleteModal}
+        userId={selectedUserId}
+      />
       <User open={openView} setOpen={setOpenViewk} />
 
       <Topbar
